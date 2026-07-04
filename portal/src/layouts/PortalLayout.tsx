@@ -63,7 +63,7 @@ const menuItems: MenuItem[] = [
     label: "Leave Requests",
     path: "/leave-requests",
     icon: HiOutlineCalendarDays,
-    roles: ["COMPANY_HEAD", "GROUP_HR", "COMPANY_HR"],
+    roles: [ "GROUP_HR", "COMPANY_HR"],
   },
   {
     label: "Leave Approvals",
@@ -75,13 +75,19 @@ const menuItems: MenuItem[] = [
     label: "My Leave",
     path: "/my-leave",
     icon: HiOutlineCalendarDays,
-    roles: ["EMPLOYEE"],
+    roles: ["COMPANY_HEAD", "GROUP_HR", "COMPANY_HR", "EMPLOYEE"],
+  },
+  {
+    label: "Leave Policy",
+    path: "/leave-policy",
+    icon: HiOutlineCalendarDays,
+    roles: [ "GROUP_HR", "COMPANY_HR"],
   },
   {
     label: "My Profile",
     path: "/profile",
     icon: HiOutlineIdentification,
-    roles: ["EMPLOYEE", "COMPANY_HEAD", "GROUP_HR", "COMPANY_HR"],
+    roles: ["OWNER_DIRECTOR","EMPLOYEE", "COMPANY_HEAD", "GROUP_HR", "COMPANY_HR"],
   },
   {
     label: "Reports",

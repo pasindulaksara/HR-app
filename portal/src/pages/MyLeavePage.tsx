@@ -51,18 +51,24 @@ function MyLeavePage() {
     return null;
   }
 
-  if (user.role !== "EMPLOYEE") {
-    return (
-      <section className="p-6 lg:p-8">
-        <div className="rounded-3xl border border-red-100 bg-red-50 p-6">
-          <h1 className="text-xl font-bold text-red-700">Access denied</h1>
-          <p className="mt-2 text-sm text-red-600">
-            Only employees can access the My Leave page.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  const canAccessMyLeave =
+  user.role === "EMPLOYEE" ||
+  user.role === "COMPANY_HEAD" ||
+  user.role === "GROUP_HR" ||
+  user.role === "COMPANY_HR";
+
+if (!canAccessMyLeave) {
+  return (
+    <section className="p-6 lg:p-8">
+      <div className="rounded-3xl border border-red-100 bg-red-50 p-6">
+        <h1 className="text-xl font-bold text-red-700">Access denied</h1>
+        <p className="mt-2 text-sm text-red-600">
+          You do not have permission to access the My Leave page.
+        </p>
+      </div>
+    </section>
+  );
+}
 
   const myLeaveRequests = leaveRequests.filter(
     (request) => request.employeeEmail === user.email,

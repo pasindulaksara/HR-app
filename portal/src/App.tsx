@@ -9,6 +9,10 @@ import EmployeesPage from './pages/EmployeesPage';
 import MyLeavePage from './pages/MyLeavePage';
 import LeaveApprovalsPage from './pages/LeaveApprovalsPage';
 import LeaveRequestsPage from './pages/LeaveRequestsPage';
+import CompaniesPage from './pages/CompaniesPage';
+import ReportsPage from './pages/ReportsPage';
+import ProfilePage from './pages/ProfilePage';
+import LeavePolicyPage from './pages/LeavePolicyPage';
 
 function App() {
   return (
@@ -23,6 +27,10 @@ function App() {
           <Route path="/my-leave" element={<MyLeavePage />} />
           <Route path="/leave-approvals" element={<LeaveApprovalsPage />} />
           <Route path="/leave-requests" element={<LeaveRequestsPage />} />
+          <Route path="/companies" element={<CompaniesPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/leave-policy" element={<LeavePolicyPage />} />
         </Route>
       </Route>
     </Routes>
