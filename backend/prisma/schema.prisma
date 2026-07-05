@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  GROUP_OWNER
+  GROUP_DIRECTOR
+  GROUP_HR
+  COMPANY_ADMIN
+  HR
+  EMPLOYEE
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  CONSULTANT
+}
+
+enum LeaveType {
+  ANNUAL
+  MEDICAL
+  CASUAL
+  NO_PAY
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Organization {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(150)
+  registrationNo String?  @map("registration_no") @db.VarChar(100)
+  email          String?  @db.VarChar(150)
+  phone          String?  @db.VarChar(50)
+  address        String?  @db.Text
+  status         Status   @default(ACTIVE)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  companies Company[]
+  users     User[]
+  employees Employee[]
+
+  @@map("organizations")
+}
+
+model Company {
+  id             Int      @id @default(autoincrement())
+  organizationId Int      @map("organization_id")
+  name           String   @db.VarChar(150)
+  registrationNo String?  @map("registration_no") @db.VarChar(100)
+  email          String?  @db.VarChar(150)
+  phone          String?  @db.VarChar(50)
+  address        String?  @db.Text
+  status         Status   @default(ACTIVE)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users         User[]
+  departments   Department[]
+  employees     Employee[]
+  leaveRequests LeaveRequest[]
+
+  @@unique([organizationId, name])
+  @@map("companies")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  organizationId Int?      @map("organization_id")
+  companyId      Int?      @map("company_id")
+  fullName       String    @map("full_name") @db.VarChar(150)
+  email          String    @unique @db.VarChar(150)
+  passwordHash   String    @map("password_hash") @db.VarChar(255)
+  role           UserRole
+  status         Status    @default(ACTIVE)
+  lastLoginAt    DateTime? @map("last_login_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  organization   Organization?  @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  company        Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  employee       Employee?
+  approvedLeaves LeaveRequest[] @relation("LeaveApprover")
+
+  @@map("users")
+}
+
+model Department {
+  id        Int      @id @default(autoincrement())
+  companyId Int      @map("company_id")
+  name      String   @db.VarChar(150)
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employees Employee[]
+
+  @@unique([companyId, name])
+  @@map("departments")
+}
+
+model Employee {
+  id             Int            @id @default(autoincrement())
+  userId         Int?           @unique @map("user_id")
+  organizationId Int            @map("organization_id")
+  companyId      Int            @map("company_id")
+  departmentId   Int?           @map("department_id")
+  employeeCode   String?        @map("employee_code") @db.VarChar(100)
+  fullName       String         @map("full_name") @db.VarChar(150)
+  email          String?        @db.VarChar(150)
+  phone          String?        @db.VarChar(50)
+  designation    String?        @db.VarChar(150)
+  employmentType EmploymentType @default(FULL_TIME) @map("employment_type")
+  joinedDate     DateTime?      @map("joined_date")
+  status         Status         @default(ACTIVE)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  department    Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  leaveRequests LeaveRequest[]
+
+  @@unique([companyId, employeeCode])
+  @@map("employees")
+}
+
+model LeaveRequest {
+  id           Int         @id @default(autoincrement())
+  employeeId   Int         @map("employee_id")
+  companyId    Int         @map("company_id")
+  leaveType    LeaveType   @default(ANNUAL) @map("leave_type")
+  startDate    DateTime    @map("start_date")
+  endDate      DateTime    @map("end_date")
+  totalDays    Decimal     @map("total_days") @db.Decimal(5, 2)
+  reason       String?     @db.Text
+  status       LeaveStatus @default(PENDING)
+  approvedBy   Int?        @map("approved_by")
+  approverNote String?     @map("approver_note") @db.Text
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  approvedByUser User?    @relation("LeaveApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@map("leave_requests")
+}
